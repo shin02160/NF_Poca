@@ -174,7 +174,7 @@ export default function DashboardView() {
       {stats.recentPocas.length > 0 && (
         <div style={{ background: 'var(--surface)', borderRadius: 14, padding: '14px 16px 16px', marginBottom: 10 }}>
           <p style={{ margin: '0 0 10px', fontSize: 13, fontWeight: 700, color: 'var(--text)' }}>최근 추가 포카</p>
-          <div style={{ display: 'flex', gap: 8, overflowX: 'auto', scrollbarWidth: 'none', paddingBottom: 4, paddingRight: 16 }}>
+          <div style={{ display: 'flex', gap: 8, overflowX: 'auto', scrollbarWidth: 'none', paddingBottom: 4 }}>
             {stats.recentPocas.map((card) => {
               const initials = card.members[0]?.slice(0, 2) ?? '??';
               return (
@@ -200,6 +200,8 @@ export default function DashboardView() {
                 </div>
               );
             })}
+            {/* 마지막 카드 우측 여백 spacer */}
+            <div style={{ flexShrink: 0, width: 16 }} />
           </div>
         </div>
       )}

@@ -18,53 +18,55 @@ export default function GridItem({ card, inPhotobook, onAdd, onRemove, onDetail 
 
   return (
     <div onClick={onDetail} style={{ cursor: 'pointer', width: '100%' }}>
-      {/* aspect-ratio:3/4 + overflow:hidden 으로 크기 완전 고정 */}
-      <div style={{
-        width: '100%',
-        aspectRatio: '3/4',
-        borderRadius: 9,
-        overflow: 'hidden',
-        position: 'relative',
-        background: 'var(--surface2)',
-        outline: inPhotobook ? '2.5px solid var(--accent)' : 'none',
-        outlineOffset: -2,
-      }}>
-        {showFallback ? (
-          <div style={{ position: 'absolute', inset: '0', background: '#dbeafe', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/assets/nflying-logo.png" alt="" style={{ width: '55%', filter: 'invert(1) sepia(1) saturate(6) hue-rotate(200deg) brightness(0.7)' }} />
-            <p style={{ margin: 0, fontSize: 7, color: '#3b82f6', fontWeight: 500, textAlign: 'center', lineHeight: 1.4 }}>이미지<br />준비중</p>
-          </div>
-        ) : (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={card.imageUrl!}
-            alt={memberLabel}
-            onError={() => setImgError(true)}
-            style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top', display: 'block' }}
-          />
-        )}
+      {/* 외부 div: paddingTop으로 3:4 비율 높이 확보 */}
+      <div style={{ position: 'relative', width: '100%', paddingTop: '133.33%' }}>
+        {/* 내부 div: absolute fill + overflow:hidden 클리핑 담당 */}
+        <div style={{
+          position: 'absolute',
+          top: 0, left: 0, right: 0, bottom: 0,
+          borderRadius: 9,
+          overflow: 'hidden',
+          background: 'var(--surface2)',
+          outline: inPhotobook ? '2.5px solid var(--accent)' : 'none',
+          outlineOffset: -2,
+        }}>
+          {showFallback ? (
+            <div style={{ width: '100%', height: '100%', background: '#dbeafe', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/assets/nflying-logo.png" alt="" style={{ width: '55%', filter: 'invert(1) sepia(1) saturate(6) hue-rotate(200deg) brightness(0.7)' }} />
+              <p style={{ margin: 0, fontSize: 7, color: '#3b82f6', fontWeight: 500, textAlign: 'center', lineHeight: 1.4 }}>이미지<br />준비중</p>
+            </div>
+          ) : (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={card.imageUrl!}
+              alt={memberLabel}
+              onError={() => setImgError(true)}
+              style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top', display: 'block' }}
+            />
+          )}
 
-        {/* 상태 pill */}
-        {card.status && (
-          <div style={{ position: 'absolute', top: 5, left: 5, zIndex: 2 }}>
-            <StatusPill status={card.status} />
-          </div>
-        )}
+          {/* 상태 pill */}
+          {card.status && (
+            <div style={{ position: 'absolute', top: 5, left: 5, zIndex: 2 }}>
+              <StatusPill status={card.status} />
+            </div>
+          )}
 
-        {/* 담기 버튼 */}
-        <button
-          onClick={(e) => { e.stopPropagation(); inPhotobook ? onRemove() : onAdd(); }}
-          style={{
-            position: 'absolute', bottom: 6, right: 4, width: 24, height: 24,
-            borderRadius: '50%', background: inPhotobook ? '#e53e3e' : 'var(--accent)',
-            boxShadow: '0 2px 8px rgba(37,99,235,0.4)', border: 'none',
-            color: 'white', fontSize: 14, fontWeight: 700, cursor: 'pointer',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2,
-          }}
-        >
-          {inPhotobook ? '✕' : '+'}
-        </button>
+          {/* 담기 버튼 */}
+          <button
+            onClick={(e) => { e.stopPropagation(); inPhotobook ? onRemove() : onAdd(); }}
+            style={{
+              position: 'absolute', bottom: 6, right: 4, width: 24, height: 24,
+              borderRadius: '50%', background: inPhotobook ? '#e53e3e' : 'var(--accent)',
+              boxShadow: '0 2px 8px rgba(37,99,235,0.4)', border: 'none',
+              color: 'white', fontSize: 14, fontWeight: 700, cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2,
+            }}
+          >
+            {inPhotobook ? '✕' : '+'}
+          </button>
+        </div>
       </div>
 
       {/* 카드명 */}
