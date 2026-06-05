@@ -12,6 +12,19 @@ const sbHeaders = {
   'Content-Type': 'application/json',
 };
 
+function kindToCat1(kind: string | null): string {
+  if (!kind) return '기타';
+  if (kind.includes('앨범포카'))              return '앨범';
+  if (kind.includes('화보포카') || kind.includes('잡지포카')) return '잡지/화보';
+  if (kind.includes('특전_콘서트'))           return '콘서트/팬미팅';
+  if (kind === 'MD')                          return 'MD굿즈';
+  if (kind.includes('팬싸인회'))              return '팬사인회';
+  if (kind.includes('공방포카'))              return '공방';
+  if (kind === '트레카' || kind === 'N.Fia_Zone') return '콘서트/팬미팅';
+  if (kind.includes('특전_기타'))             return '기타';
+  return '기타';
+}
+
 function extractText(prop: any): string | null {
   if (!prop) return null;
   if (prop.type === 'title')     return prop.title?.[0]?.plain_text ?? null;
@@ -48,13 +61,23 @@ async function fetchAllNotionCards() {
     if (!res.ok) throw new Error(`Notion ${res.status}: ${JSON.stringify(data)}`);
     for (const page of data.results) {
       const p = page.properties;
+      const kind   = extractText(p['종류'] ?? p['kind']);
+      const origin = extractText(p['출처'] ?? p['album']);
+      const year   = extractText(p['발매'] ?? p['year'])
+                     ?? origin?.match(/^(\d{4})/)?.[1]
+                     ?? null;
       cards.push({
         id:      page.id,
         name:    extractText(p['포카명'] ?? p['Name']) ?? '(이름 없음)',
         members: extractMultiSelect(p['멤버'] ?? p['member']),
-        kind:    extractText(p['종류'] ?? p['kind']),
-        album:   extractText(p['출처'] ?? p['album']),
-        year:    extractText(p['발매'] ?? p['year']),
+        kind,
+        cat2:    kind,
+        cat1:    kindToCat1(kind),
+        album:   origin,
+        origin,
+        year,
+        status:  extractText(p['상태'] ?? p['status']) ?? null,
+        note:    extractText(p['구입처'] ?? p['note']),
         _notionImageUrl: extractImageUrl(p['사진'] ?? p['image']),
       });
     }
