@@ -179,27 +179,19 @@ export default function DashboardView() {
               const initials = card.members[0]?.slice(0, 2) ?? '??';
               return (
                 <div key={card.id} style={{ flexShrink: 0, width: 65 }}>
-                  <div style={{
-                    width: 65,
-                    aspectRatio: '3/4',
-                    borderRadius: 9,
-                    overflow: 'hidden',
-                    background: 'var(--surface2)',
-                    position: 'relative',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}>
+                  <div style={{ width: 65, aspectRatio: '3/4', borderRadius: 9, overflow: 'hidden', background: 'var(--surface2)', position: 'relative' }}>
                     {card.imageUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
                         src={card.imageUrl}
                         alt={card.name}
-                        style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top' }}
+                        style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top', display: 'block' }}
                         onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                       />
                     ) : (
-                      <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 14, color: '#7c3aed66' }}>{initials}</span>
+                      <div style={{ position: 'absolute', inset: '0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 14, color: '#7c3aed66' }}>{initials}</span>
+                      </div>
                     )}
                   </div>
                   <p style={{ margin: '4px 0 0', fontSize: 9, color: 'var(--text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
