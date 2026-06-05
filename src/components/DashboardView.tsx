@@ -56,7 +56,14 @@ export default function DashboardView() {
     const maxYear = Math.max(...yearlyTrend.map(([, c]) => c), 1);
     const currentYear = String(new Date().getFullYear());
 
-    return { total, memberCount: memberSet.size, originCount: originSet.size, photoRate, memberBreakdown, maxMember, originBreakdown, maxOrigin, mediaBreakdown, maxMedia, yearlyTrend, maxYear, currentYear };
+    const cat2Map: Record<string, number> = {};
+    allCards.forEach((c) => { if (c.cat2 ?? c.kind) cat2Map[(c.cat2 ?? c.kind)!] = (cat2Map[(c.cat2 ?? c.kind)!] ?? 0) + 1; });
+    const cat2Breakdown = Object.entries(cat2Map).sort((a, b) => b[1] - a[1]);
+    const maxCat2 = cat2Breakdown[0]?.[1] ?? 1;
+
+    const recentPocas = [...allCards].slice(0, 8);
+
+    return { total, memberCount: memberSet.size, originCount: originSet.size, photoRate, memberBreakdown, maxMember, originBreakdown, maxOrigin, mediaBreakdown, maxMedia, yearlyTrend, maxYear, currentYear, cat2Breakdown, maxCat2, recentPocas };
   }, [allCards]);
 
   const MEDIA_COLORS: Record<string, string> = {
@@ -147,6 +154,63 @@ export default function DashboardView() {
           })}
         </div>
       </Section>
+
+      {/* ⑥ 종류별 분포 */}
+      {stats.cat2Breakdown.length > 0 && (
+        <Section title="종류별 분포">
+          {stats.cat2Breakdown.map(([label, count]) => (
+            <BarRow
+              key={label}
+              label={label}
+              count={count}
+              pct={Math.round(count / stats.maxCat2 * 100)}
+              color="#6ee7b7"
+            />
+          ))}
+        </Section>
+      )}
+
+      {/* ⑦ 최근 추가 포카 */}
+      {stats.recentPocas.length > 0 && (
+        <div style={{ background: 'var(--surface)', borderRadius: 14, padding: '14px 16px 16px', marginBottom: 10 }}>
+          <p style={{ margin: '0 0 10px', fontSize: 13, fontWeight: 700, color: 'var(--text)' }}>최근 추가 포카</p>
+          <div style={{ display: 'flex', gap: 8, overflowX: 'auto', scrollbarWidth: 'none', paddingBottom: 2 }}>
+            {stats.recentPocas.map((card) => {
+              const initials = card.members[0]?.slice(0, 2) ?? '??';
+              return (
+                <div key={card.id} style={{ flexShrink: 0, width: 65 }}>
+                  <div style={{
+                    width: 65,
+                    aspectRatio: '3/4',
+                    borderRadius: 9,
+                    overflow: 'hidden',
+                    background: 'var(--surface2)',
+                    position: 'relative',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}>
+                    {card.imageUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={card.imageUrl}
+                        alt={card.name}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top' }}
+                        onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                      />
+                    ) : (
+                      <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 14, color: '#7c3aed66' }}>{initials}</span>
+                    )}
+                  </div>
+                  <p style={{ margin: '4px 0 0', fontSize: 9, color: 'var(--text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {card.name}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
     </div>
   );

@@ -10,9 +10,13 @@ import TabBar from './TabBar';
 import StatsBar from './StatsBar';
 import FilterBar from './FilterBar';
 import DashboardView from './DashboardView';
+import Pagination from './Pagination';
+import UploadModal from './UploadModal';
 import type { PocaCard } from '@/types';
 
 const GRID_COLS = 3;
+const PAGE_SIZE_GRID = 27;
+const PAGE_SIZE_LIST = 20;
 
 export default function MainView() {
   const {
@@ -25,6 +29,8 @@ export default function MainView() {
 
   const filteredCards = useFilteredCards();
   const viewMode = useAppStore((s) => s.viewMode);
+  const page = useAppStore((s) => s.page);
+  const { setPage, resetPage } = useAppStore();
 
   const isInPhotobook = useCallback((id: string) => photobookCards.some((c) => c.id === id), [photobookCards]);
 
@@ -55,9 +61,13 @@ export default function MainView() {
     return () => clearInterval(id);
   }, []);
 
+  const pageSize = viewMode === 'grid' ? PAGE_SIZE_GRID : PAGE_SIZE_LIST;
+  const totalPages = Math.max(1, Math.ceil(filteredCards.length / pageSize));
+  const pagedCards = filteredCards.slice((page - 1) * pageSize, page * pageSize);
+
   const gridRows: PocaCard[][] = [];
-  for (let i = 0; i < filteredCards.length; i += GRID_COLS) {
-    gridRows.push(filteredCards.slice(i, i + GRID_COLS));
+  for (let i = 0; i < pagedCards.length; i += GRID_COLS) {
+    gridRows.push(pagedCards.slice(i, i + GRID_COLS));
   }
 
   return (
@@ -80,6 +90,18 @@ export default function MainView() {
           <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 18, color: 'var(--text)', letterSpacing: 0.5 }}>
             {loading ? `${loadedCount}…` : `${allCards.length}장`}
           </span>
+          <button
+            onClick={() => useAppStore.setState({ showUpload: true })}
+            style={{
+              width: 32, height: 32, borderRadius: 8,
+              border: '1px solid var(--border)', background: 'var(--surface)',
+              color: 'var(--text-muted)', fontSize: 14, cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}
+            title="CSV 업로드"
+          >
+            ↑
+          </button>
           <button
             onClick={fetchCards}
             disabled={loading}
@@ -148,7 +170,7 @@ export default function MainView() {
             </div>
           ) : viewMode === 'list' ? (
             <VList style={{ height: '100%' }}>
-              {filteredCards.map((card) => (
+              {pagedCards.map((card) => (
                 <ListItem
                   key={card.id}
                   card={card}
@@ -214,12 +236,22 @@ export default function MainView() {
         </div>
       )}
 
+      {/* 페이지네이션 (목록 탭) */}
+      {activeTab === 'list' && totalPages > 1 && (
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          onChange={(p) => { setPage(p); window.scrollTo(0, 0); }}
+        />
+      )}
+
       {/* 하단 탭바 */}
       <TabBar />
 
       {/* 모달 */}
       <DetailModalWrapper />
       <PhotobookWrapper />
+  <UploadModalWrapper />
     </div>
   );
 }
@@ -248,4 +280,10 @@ function PhotobookWrapper() {
   const showPhotobook = useAppStore((s) => s.showPhotobook);
   if (!showPhotobook) return null;
   return <PhotobookPanel onClose={() => useAppStore.setState({ showPhotobook: false })} />;
+}
+
+function UploadModalWrapper() {
+  const show = useAppStore((s) => (s as any).showUpload as boolean);
+  if (!show) return null;
+  return <UploadModal onClose={() => useAppStore.setState({ showUpload: false })} />;
 }

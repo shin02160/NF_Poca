@@ -28,8 +28,13 @@ interface AppStore {
   setViewMode: (mode: ViewMode) => void;
   setActiveTab: (tab: AppTab) => void;
 
+  page: number;
+  setPage: (n: number) => void;
+  resetPage: () => void;
+
   detailCard: PocaCard | null;
   showPhotobook: boolean;
+  showUpload: boolean;
 
   addToPhotobook: (card: PocaCard) => void;
   removeFromPhotobook: (id: string) => void;
@@ -60,6 +65,8 @@ export const useAppStore = create<AppStore>((set) => ({
   photobookCards: [],
   detailCard: null,
   showPhotobook: false,
+  showUpload: false,
+  page: 1,
 
   setCards: (cards) => set({ allCards: cards }),
   setLoading: (v) => set({ loading: v }),
@@ -67,10 +74,13 @@ export const useAppStore = create<AppStore>((set) => ({
   setError: (e) => set({ error: e }),
   setFetchedAt: (t) => set({ fetchedAt: t }),
 
-  setFilter: (partial) => set((s) => ({ filter: { ...s.filter, ...partial } })),
-  resetFilter: () => set({ filter: defaultFilter }),
+  setFilter: (partial) => set((s) => ({ filter: { ...s.filter, ...partial }, page: 1 })),
+  resetFilter: () => set({ filter: defaultFilter, page: 1 }),
   setViewMode: (mode) => set({ viewMode: mode }),
   setActiveTab: (tab) => set({ activeTab: tab }),
+
+  setPage: (n) => set({ page: n }),
+  resetPage: () => set({ page: 1 }),
 
   addToPhotobook: (card) =>
     set((s) => {
