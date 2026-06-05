@@ -1,26 +1,67 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/packages/pretendard-jp/dist/web/static/pretendard-jp.css');
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg:          #f7f7f8;
+  --surface:     #ffffff;
+  --surface2:    #f4f4f5;
+  --surface3:    #ebebec;
+  --border:      #dbdcdf;
+  --border2:     #e8e9ec;
+  --text:        #171719;
+  --text-muted:  #70737c;
+  --text-dim:    #aeb1b6;
+  --accent:      #2563eb;
+  --accent2:     #7c3aed;
+  --gold:        #d97706;
+
+  --owned:   #00bf40;
+  --planned: #f59e0b;
+  --wanted:  #ef4444;
+  --none:    #70737c;
+  --ordered: #f97316;
+
+  --pastel-purple: #c4b5fd;
+  --pastel-blue:   #93c5fd;
+  --pastel-green:  #6ee7b7;
+  --pastel-yellow: #fcd34d;
+  --pastel-pink:   #f9a8d4;
+  --pastel-cyan:   #a5f3fc;
+  --pastel-gray:   #d1d5db;
+
+  --color-primary:      var(--accent);
+  --color-primary-bg:   #dbeafe;
+  --color-bg:           var(--bg);
+  --color-surface:      var(--surface);
+  --color-border:       var(--border);
+  --color-border-light: var(--surface2);
+  --color-text:         var(--text);
+  --color-text-mid:     var(--text-muted);
+  --color-text-light:   var(--text-dim);
+  --color-dim:          rgba(15, 15, 18, 0.48);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Pretendard JP', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+input, button {
+  font-family: inherit;
+}
+
+button {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  touch-action: manipulation;
 }
