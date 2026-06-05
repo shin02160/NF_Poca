@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useState, useRef } from 'react';
 import { VList } from 'virtua';
 import { useAppStore, useFilteredCards, isCacheStale } from '@/store/useAppStore';
 import ListItem from './ListItem';
@@ -34,6 +34,10 @@ export default function MainView() {
 
   const isInPhotobook = useCallback((id: string) => photobookCards.some((c) => c.id === id), [photobookCards]);
 
+  const [syncing, setSyncing] = useState(false);
+  const [pullY, setPullY] = useState(0);
+  const touchStartY = useRef(0);
+
   const fetchCards = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -51,6 +55,28 @@ export default function MainView() {
       setLoading(false);
     }
   }, []);
+
+  const syncFromNotion = useCallback(async () => {
+    setSyncing(true);
+    try {
+      const res = await fetch('/api/refresh', { method: 'POST' });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? `HTTP ${res.status}`);
+      await fetchCards();
+    } catch (e: any) {
+      setError(e.message);
+    } finally {
+      setSyncing(false);
+    }
+  }, [fetchCards]);
+
+  function timeAgo(ts: number | null): string {
+    if (!ts) return '';
+    const diff = Math.floor((Date.now() - ts) / 1000);
+    if (diff < 60)  return '방금 전';
+    if (diff < 3600) return `${Math.floor(diff / 60)}분 전`;
+    return `${Math.floor(diff / 3600)}시간 전`;
+  }
 
   useEffect(() => {
     if (isCacheStale(fetchedAt)) fetchCards();
@@ -86,39 +112,40 @@ export default function MainView() {
       }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/assets/nflying-logo.png" alt="N.Flying" style={{ height: 38, width: 'auto' }} />
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 18, color: 'var(--text)', letterSpacing: 0.5 }}>
-            {loading ? `${loadedCount}…` : `${allCards.length}장`}
-          </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          {/* 장수 + 마지막 업데이트 */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+            <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 18, color: 'var(--text)', letterSpacing: 0.5, lineHeight: 1 }}>
+              {loading ? `${loadedCount}…` : `${allCards.length}장`}
+            </span>
+            {fetchedAt && !loading && (
+              <span style={{ fontSize: 9, color: 'var(--text-dim)', lineHeight: 1, marginTop: 1 }}>
+                {timeAgo(fetchedAt)}
+              </span>
+            )}
+          </div>
+          {/* CSV 업로드 */}
           <button
             onClick={() => useAppStore.setState({ showUpload: true })}
-            style={{
-              width: 32, height: 32, borderRadius: 8,
-              border: '1px solid var(--border)', background: 'var(--surface)',
-              color: 'var(--text-muted)', fontSize: 14, cursor: 'pointer',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}
+            style={{ width: 32, height: 32, borderRadius: 8, border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text-muted)', fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             title="CSV 업로드"
           >
             ↑
           </button>
+          {/* Notion 동기화 */}
+          <button
+            onClick={syncFromNotion}
+            disabled={syncing || loading}
+            style={{ width: 32, height: 32, borderRadius: 8, border: '1px solid var(--border)', background: syncing ? 'var(--surface2)' : 'var(--surface)', color: syncing ? 'var(--accent)' : 'var(--text-muted)', fontSize: 12, cursor: syncing || loading ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: syncing || loading ? 0.6 : 1, fontWeight: 600 }}
+            title="Notion에서 동기화"
+          >
+            {syncing ? '⟳' : 'N'}
+          </button>
+          {/* 새로고침 */}
           <button
             onClick={fetchCards}
             disabled={loading}
-            style={{
-              width: 32,
-              height: 32,
-              borderRadius: 8,
-              border: '1px solid var(--border)',
-              background: 'var(--surface)',
-              color: 'var(--text-muted)',
-              fontSize: 14,
-              cursor: loading ? 'not-allowed' : 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              opacity: loading ? 0.5 : 1,
-            }}
+            style={{ width: 32, height: 32, borderRadius: 8, border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text-muted)', fontSize: 14, cursor: loading ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: loading ? 0.5 : 1 }}
           >
             {loading ? '⏳' : '↻'}
           </button>
@@ -162,7 +189,26 @@ export default function MainView() {
       )}
 
       {/* 콘텐츠 */}
-      <div style={{ flex: 1, overflow: 'hidden' }}>
+      <div
+        style={{ flex: 1, overflow: 'hidden', position: 'relative' }}
+        onTouchStart={(e) => { touchStartY.current = e.touches[0].clientY; }}
+        onTouchMove={(e) => {
+          const dy = e.touches[0].clientY - touchStartY.current;
+          if (dy > 0 && !loading) setPullY(Math.min(dy * 0.4, 60));
+        }}
+        onTouchEnd={() => {
+          if (pullY >= 50) fetchCards();
+          setPullY(0);
+        }}
+      >
+        {/* pull-to-refresh 인디케이터 */}
+        {pullY > 0 && (
+          <div style={{ position: 'absolute', top: pullY - 30, left: 0, right: 0, display: 'flex', justifyContent: 'center', zIndex: 10, pointerEvents: 'none' }}>
+            <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'var(--surface)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', fontSize: 14, transform: `rotate(${pullY * 4}deg)` }}>
+              ↻
+            </div>
+          </div>
+        )}
         {activeTab === 'list' ? (
           loading && !allCards.length ? (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'var(--text-muted)', fontSize: 14 }}>
