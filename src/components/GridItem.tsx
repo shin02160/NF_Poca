@@ -1,5 +1,5 @@
 'use client';
-import PocaImage from './PocaImage';
+import { useState } from 'react';
 import StatusPill from './StatusPill';
 import type { PocaCard } from '@/types';
 
@@ -12,14 +12,38 @@ interface Props {
 }
 
 export default function GridItem({ card, inPhotobook, onAdd, onRemove, onDetail }: Props) {
+  const [imgError, setImgError] = useState(false);
   const memberLabel = card.members.join(' · ') || '—';
+  const showFallback = !card.imageUrl || imgError;
 
   return (
     <div onClick={onDetail} style={{ cursor: 'pointer', width: '100%' }}>
-      <div style={{ position: 'relative', width: '100%', paddingBottom: '133.33%', borderRadius: 9, overflow: 'hidden', outline: inPhotobook ? '2.5px solid var(--accent)' : 'none', outlineOffset: -2 }}>
-        <div style={{ position: 'absolute', inset: 0 }}>
-          <PocaImage src={card.imageUrl} memberName={memberLabel} radius={0} showNameOverlay fillParent />
-        </div>
+      {/* 이미지 컨테이너 — paddingBottom으로 3:4 비율 완전 고정 */}
+      <div style={{
+        position: 'relative',
+        width: '100%',
+        paddingBottom: '133.33%',
+        borderRadius: 9,
+        overflow: 'hidden',
+        outline: inPhotobook ? '2.5px solid var(--accent)' : 'none',
+        outlineOffset: -2,
+        background: 'var(--surface2)',
+      }}>
+        {showFallback ? (
+          <div style={{ position: 'absolute', inset: 0, background: '#dbeafe', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/assets/nflying-logo.png" alt="" style={{ width: '55%', filter: 'invert(1) sepia(1) saturate(6) hue-rotate(200deg) brightness(0.7)' }} />
+            <p style={{ margin: 0, fontSize: 7, color: '#3b82f6', fontWeight: 500, textAlign: 'center', lineHeight: 1.4 }}>이미지<br />준비중</p>
+          </div>
+        ) : (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={card.imageUrl!}
+            alt={memberLabel}
+            onError={() => setImgError(true)}
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top' }}
+          />
+        )}
 
         {/* 상태 pill */}
         {card.status && (
@@ -32,24 +56,11 @@ export default function GridItem({ card, inPhotobook, onAdd, onRemove, onDetail 
         <button
           onClick={(e) => { e.stopPropagation(); inPhotobook ? onRemove() : onAdd(); }}
           style={{
-            position: 'absolute',
-            bottom: 6,
-            right: 4,
-            width: 24,
-            height: 24,
-            borderRadius: '50%',
-            background: inPhotobook ? '#e53e3e' : 'var(--accent)',
-            boxShadow: '0 2px 8px rgba(37,99,235,0.4)',
-            border: 'none',
-            color: 'white',
-            fontSize: 14,
-            fontWeight: 700,
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            lineHeight: 1,
-            zIndex: 2,
+            position: 'absolute', bottom: 6, right: 4, width: 24, height: 24,
+            borderRadius: '50%', background: inPhotobook ? '#e53e3e' : 'var(--accent)',
+            boxShadow: '0 2px 8px rgba(37,99,235,0.4)', border: 'none',
+            color: 'white', fontSize: 14, fontWeight: 700, cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2,
           }}
         >
           {inPhotobook ? '✕' : '+'}

@@ -105,14 +105,14 @@ export default function DashboardView() {
 
       {/* ③ 출처별 현황 */}
       <Section title="출처별 현황">
-        {stats.originBreakdown.map(({ label, count, year }) => (
+        {stats.originBreakdown.map(({ label, count }) => (
           <BarRow
             key={label}
-            label={label}
+            label={label.replace(/^\d{4}_/, '')}
             count={count}
             pct={Math.round(count / stats.maxOrigin * 100)}
             color="#93c5fd"
-            prefix={year}
+            labelWidth={110}
           />
         ))}
       </Section>
@@ -227,13 +227,10 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
-function BarRow({ label, count, pct, color, prefix }: { label: string; count: number; pct: number; color: string; prefix?: string }) {
+function BarRow({ label, count, pct, color, labelWidth = 60 }: { label: string; count: number; pct: number; color: string; labelWidth?: number }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-      {prefix && (
-        <span style={{ fontSize: 9, color: 'var(--text-dim)', width: 28, flexShrink: 0 }}>{prefix}</span>
-      )}
-      <span style={{ fontSize: 12, color: 'var(--text-muted)', width: prefix ? 90 : 56, flexShrink: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{label}</span>
+      <span style={{ fontSize: 12, color: 'var(--text-muted)', width: labelWidth, flexShrink: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{label}</span>
       <div style={{ flex: 1, height: 7, background: 'var(--surface2)', borderRadius: 100, overflow: 'hidden' }}>
         <div style={{ width: `${pct}%`, height: '100%', background: color, borderRadius: 100 }} />
       </div>

@@ -138,15 +138,31 @@ export default function FilterBar() {
     return [...MEMBER_ORDER.filter((m) => fromData.includes(m)), ...fromData.filter((m) => !MEMBER_ORDER.includes(m))];
   }, [allCards]);
   const cat1Options = useMemo(() =>
-    [...new Set(allCards.map((c) => c.cat1).filter(Boolean) as string[])].sort(),
+    (() => {
+      const items = [...new Set(allCards.map((c) => c.cat1).filter(Boolean) as string[])];
+      return items.sort((a, b) => {
+        if (a === '기타') return 1;
+        if (b === '기타') return -1;
+        return a.localeCompare(b, 'ko');
+      });
+    })(),
     [allCards]
   );
   const yearOptions = useMemo(() =>
-    [...new Set(allCards.map((c) => c.year).filter(Boolean) as string[])].sort((a, b) => b.localeCompare(a)),
+    [...new Set(allCards.map((c) => c.year).filter(Boolean) as string[])].sort((a, b) => a.localeCompare(b)),
     [allCards]
   );
   const originOptions = useMemo(() =>
-    [...new Set(allCards.map((c) => c.origin).filter(Boolean) as string[])].sort((a, b) => b.localeCompare(a)),
+    (() => {
+      const LAST = ['N.Fia', '기타'];
+      const items = [...new Set(allCards.map((c) => c.origin).filter(Boolean) as string[])];
+      return items.sort((a, b) => {
+        const aLast = LAST.includes(a), bLast = LAST.includes(b);
+        if (aLast && !bLast) return 1;
+        if (!aLast && bLast) return -1;
+        return a.localeCompare(b, 'ko');
+      });
+    })(),
     [allCards]
   );
 
