@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>N.Flying_POCA ✦</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#09090e;--surface:#111118;--surface2:#18181f;--surface3:#20202a;
+  --border:#252533;--border2:#2e2e40;
+  --accent:#7b9cff;--accent2:#a78bfa;--gold:#fbbf24;
+  --text:#e8e8f2;--text-muted:#6b6b8a;--text-dim:#3a3a55;
+  --owned:#34d399;--planned:#fbbf24;--wanted:#f87171;--none-c:#6b6b8a;
+  --r:12px;--r-sm:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+.bg-glow{position:fixed;pointer-events:none;z-index:0;}
+.bg-glow-1{top:-300px;right:-200px;width:700px;height:700px;background:radial-gradient(circle,rgba(123,156,255,.06) 0%,transparent 65%);}
+.bg-glow-2{bottom:-200px;left:-150px;width:600px;height:600px;background:radial-gradient(circle,rgba(167,139,250,.05) 0%,transparent 65%);}
+header{position:sticky;top:0;z-index:100;background:rgba(9,9,14,.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:0 16px;height:54px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.logo{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.logo-mark{width:28px;height:28px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;font-family:'Bebas Neue',sans-serif;letter-spacing:1px;}
+.logo-text{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.logo-sub{font-size:10px;color:var(--text-muted);}
+.header-right{display:flex;gap:4px;align-items:center;flex-shrink:0;}
+.sync-badge{display:flex;align-items:center;gap:4px;padding:4px 8px;border-radius:12px;font-size:11px;font-weight:500;border:1px solid var(--border2);background:var(--surface2);color:var(--text-muted);max-width:90px;overflow:hidden;}
+.sync-badge.ok{border-color:rgba(52,211,153,.4);color:var(--owned);background:rgba(52,211,153,.08);}
+.sync-badge.loading{border-color:rgba(123,156,255,.4);color:var(--accent);background:rgba(123,156,255,.08);animation:pulse 1.2s infinite;}
+.sync-badge.err{border-color:rgba(248,113,113,.4);color:var(--wanted);background:rgba(248,113,113,.08);}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+.s-dot{width:5px;height:5px;border-radius:50%;background:currentColor;}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:var(--r-sm);font-size:12px;font-weight:500;font-family:'Noto Sans KR',sans-serif;cursor:pointer;border:none;transition:all .2s;}
+.btn-ghost{background:transparent;color:var(--text-muted);border:1px solid var(--border2);}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent);}
+.stats-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;position:sticky;top:54px;z-index:90;}
+.stat-chip{display:flex;align-items:center;gap:5px;padding:5px 12px;border-radius:16px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border2);background:var(--surface2);color:var(--text-muted);transition:all .15s;}
+.stat-chip:hover{border-color:var(--border);}
+.stat-chip.active{border-color:var(--accent);background:rgba(123,156,255,.1);color:var(--accent);}
+.stat-chip.active.c-owned{border-color:var(--owned);background:rgba(52,211,153,.1);color:var(--owned);}
+.stat-chip.active.c-planned{border-color:var(--planned);background:rgba(251,191,36,.1);color:var(--planned);}
+.stat-chip.active.c-wanted{border-color:var(--wanted);background:rgba(248,113,113,.1);color:var(--wanted);}
+.stat-chip.active.c-ordered{border-color:#fb923c;background:rgba(251,146,60,.1);color:#fb923c;}
+.stat-num{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:.5px;}
+.stats-divider{width:1px;height:20px;background:var(--border);flex-shrink:0;}
+.filter-bar{padding:10px 16px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;border-bottom:1px solid var(--border);}
+.search-wrap{position:relative;flex:1;min-width:160px;max-width:280px;}
+.search-ico{position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--text-dim);pointer-events:none;}
+input.search{width:100%;padding:7px 9px 7px 28px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);color:var(--text);font-size:12px;font-family:'Noto Sans KR',sans-serif;}
+input.search:focus{outline:none;border-color:var(--accent);}
+input.search::placeholder{color:var(--text-dim);}
+select.sel{padding:7px 9px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);color:var(--text);font-size:12px;font-family:'Noto Sans KR',sans-serif;cursor:pointer;}
+select.sel:focus{outline:none;border-color:var(--accent);}
+main{position:relative;z-index:1;padding:14px;}
+.gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}
+.poca-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;cursor:pointer;transition:all .2s;position:relative;min-width:0;}
+.poca-card:hover{transform:translateY(-3px);box-shadow:0 8px 28px rgba(0,0,0,.4);border-color:var(--border2);}
+.poca-card:active{transform:translateY(-1px);}
+.card-photo{position:relative;width:100%;height:calc((100vw - 44px) * 4 / 9);overflow:hidden;background:var(--surface2);}
+@media(min-width:641px){.card-photo{height:calc((100vw - 58px) / 3);}}
+@media(min-width:1024px){.card-photo{height:calc((100vw - 68px) * 4 / 15);}}
+@media(min-width:1200px){.card-photo{height:calc((1300px - 120px) * 4 / 15);}}
+.card-photo img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;transition:transform .3s;}
+.poca-card:hover .card-photo img{transform:scale(1.04);}
+.card-photo-placeholder{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;background:linear-gradient(135deg,rgba(123,156,255,.06),rgba(167,139,250,.04));}
+.card-photo-placeholder .emoji{font-size:28px;opacity:.6;}
+.card-photo-placeholder .initial{font-family:'Bebas Neue',sans-serif;font-size:13px;color:rgba(255,255,255,.25);letter-spacing:1px;}
+.card-status{position:absolute;top:6px;right:6px;padding:2px 6px;border-radius:8px;font-size:9px;font-weight:700;z-index:2;backdrop-filter:blur(8px);}
+.card-status.owned{background:rgba(52,211,153,.25);color:var(--owned);border:1px solid rgba(52,211,153,.4);}
+.card-status.planned{background:rgba(251,191,36,.25);color:var(--planned);border:1px solid rgba(251,191,36,.4);}
+.card-status.wanted{background:rgba(248,113,113,.25);color:var(--wanted);border:1px solid rgba(248,113,113,.4);}
+.card-status.none{background:rgba(107,107,138,.2);color:var(--text-dim);border:1px solid rgba(107,107,138,.3);}
+.card-status.ordered{background:rgba(251,146,60,.25);color:#fb923c;border:1px solid rgba(251,146,60,.4);}
+.card-info{padding:8px 10px 10px;}
+.card-name{font-size:12px;font-weight:700;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.card-album{font-size:10px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:5px;}
+.card-tags{display:flex;gap:3px;flex-wrap:wrap;}
+.tag{padding:1px 5px;border-radius:6px;font-size:9px;font-weight:600;}
+.tag.t-member{color:var(--gold);background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.2);}
+.tag.t-cat{color:var(--accent2);background:rgba(167,139,250,.1);border:1px solid rgba(167,139,250,.2);}
+.overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.85);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;padding:16px;opacity:0;pointer-events:none;transition:opacity .2s;}
+.overlay.open{opacity:1;pointer-events:all;}
+.detail-modal{background:var(--surface);border:1px solid var(--border2);border-radius:16px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;transform:scale(.96);transition:transform .2s;}
+.overlay.open .detail-modal{transform:scale(1);}
+.detail-photo{aspect-ratio:3/4;position:relative;overflow:hidden;background:var(--surface2);border-radius:14px 14px 0 0;}
+.detail-photo img{width:100%;height:100%;object-fit:cover;}
+.detail-photo-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:60px;opacity:.3;}
+.detail-close{position:absolute;top:10px;right:10px;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,.5);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.15);color:#fff;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;z-index:1;}
+.detail-close:hover{background:rgba(0,0,0,.7);}
+.detail-status-overlay{position:absolute;bottom:10px;left:10px;}
+.detail-body{padding:16px 18px 20px;}
+.detail-name{font-size:18px;font-weight:700;margin-bottom:4px;}
+.detail-album{font-size:13px;color:var(--text-muted);margin-bottom:14px;}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;}
+.detail-field{background:var(--surface2);border-radius:var(--r-sm);padding:8px 10px;}
+.detail-field-label{font-size:10px;color:#ffffff;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;font-weight:600;}
+.detail-field-value{font-size:12px;font-weight:600;}
+.detail-memo{background:var(--surface2);border-radius:var(--r-sm);padding:10px 12px;font-size:12px;color:var(--text-muted);line-height:1.6;}
+.empty{text-align:center;padding:80px 20px;color:var(--text-dim);grid-column:1/-1;}
+.empty .ico{font-size:40px;margin-bottom:12px;opacity:.4;}
+.empty p{font-size:13px;}
+.skeleton{background:linear-gradient(90deg,var(--surface2) 25%,var(--surface3) 50%,var(--surface2) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.skel-card{border-radius:var(--r);overflow:hidden;}
+.skel-img{aspect-ratio:3/4;}
+.skel-body{padding:8px 10px 10px;display:flex;flex-direction:column;gap:5px;}
+.skel-line{height:10px;border-radius:4px;}
+.skel-line.short{width:60%;}
+.setup-banner{margin:16px;background:rgba(123,156,255,.06);border:1px solid rgba(123,156,255,.2);border-radius:var(--r);padding:16px 18px;}
+.setup-banner h3{font-size:14px;font-weight:700;color:var(--accent);margin-bottom:8px;}
+.setup-banner p{font-size:12px;color:var(--text-muted);line-height:1.7;}
+.setup-banner code{background:rgba(123,156,255,.15);padding:1px 6px;border-radius:4px;font-family:'DM Mono',monospace;font-size:11px;color:var(--accent2);}
+.pill{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600;}
+.pill::before{content:'';width:4px;height:4px;border-radius:50%;}
+.pill.owned{color:var(--owned);background:rgba(52,211,153,.1);}.pill.owned::before{background:var(--owned);}
+.pill.planned{color:var(--planned);background:rgba(251,191,36,.1);}.pill.planned::before{background:var(--planned);}
+.pill.wanted{color:var(--wanted);background:rgba(248,113,113,.1);}.pill.wanted::before{background:var(--wanted);}
+.pill.none{color:var(--none-c);background:rgba(107,107,138,.1);}.pill.none::before{background:var(--none-c);}
+.pill.ordered{color:#fb923c;background:rgba(251,146,60,.1);}.pill.ordered::before{background:#fb923c;}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+@media(max-width:640px){
+  .filter-bar{gap:6px;}
+  .stats-bar{gap:6px;}
+}
+@media(min-width:641px){.gallery{grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;}}
+@media(min-width:1024px){.gallery{grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;}}
+@media(min-width:1200px){
+  .gallery{grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;}
+  main{max-width:1300px;margin:0 auto;padding:20px;}
+}
+.pagination{display:flex;align-items:center;justify-content:center;gap:6px;padding:20px 16px 8px;flex-wrap:wrap;}
+.page-btn{min-width:32px;height:32px;padding:0 8px;border-radius:var(--r-sm);font-size:12px;font-weight:600;font-family:'DM Mono',monospace;cursor:pointer;border:1px solid var(--border2);background:var(--surface2);color:var(--text-muted);transition:all .15s;display:flex;align-items:center;justify-content:center;}
+.page-btn:hover{border-color:var(--accent);color:var(--accent);}
+.page-btn.active{border-color:var(--accent);background:rgba(123,156,255,.15);color:var(--accent);}
+.page-btn:disabled{opacity:.3;cursor:not-allowed;}
+.page-btn.active:hover{color:var(--accent);}
+.page-info{font-size:11px;color:var(--text-muted);font-family:'DM Mono',monospace;padding:0 4px;}
+.csv-overlay{position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.85);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;padding:16px;opacity:0;pointer-events:none;transition:opacity .2s;}
+.csv-overlay.open{opacity:1;pointer-events:all;}
+.csv-modal{background:var(--surface);border:1px solid var(--border2);border-radius:16px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;transform:translateY(16px);transition:transform .2s;}
+.csv-overlay.open .csv-modal{transform:translateY(0);}
+.csv-modal-hd{padding:16px 20px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--surface);z-index:1;}
+.csv-modal-title{font-size:15px;font-weight:700;}
+.csv-modal-bd{padding:16px 20px 20px;display:flex;flex-direction:column;gap:12px;}
+.csv-note{background:rgba(123,156,255,.06);border:1px solid rgba(123,156,255,.15);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--text-muted);line-height:1.7;}
+.csv-note strong{color:var(--accent);}
+.csv-note code{background:rgba(123,156,255,.15);padding:1px 5px;border-radius:4px;font-family:'DM Mono',monospace;font-size:11px;}
+.csv-format-box{background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 14px;font-family:'DM Mono',monospace;font-size:11px;color:var(--text-muted);line-height:1.8;}
+.csv-format-box span{color:var(--accent2);}
+textarea.csv-ta{width:100%;min-height:120px;padding:10px 12px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;resize:vertical;}
+textarea.csv-ta:focus{outline:none;border-color:var(--accent);}
+.csv-preview-wrap{display:none;}
+.csv-preview-wrap.show{display:block;}
+.csv-preview-title{font-size:12px;color:var(--text-muted);margin-bottom:8px;}
+.csv-preview-count{font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);background:rgba(123,156,255,.1);border:1px solid rgba(123,156,255,.2);padding:1px 8px;border-radius:10px;margin-left:6px;}
+.csv-preview-table{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:12px;}
+.csv-preview-table th{padding:6px 8px;text-align:left;color:var(--text-dim);font-size:10px;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border);font-weight:500;}
+.csv-preview-table td{padding:6px 8px;border-bottom:1px solid rgba(37,37,51,.5);}
+.csv-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.btn-primary{background:linear-gradient(135deg,var(--accent),#5a7ff0);color:#fff;border:none;}
+.btn-primary:hover{opacity:.88;}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;}
+.upload-progress{font-size:12px;color:var(--text-muted);}
+.upload-result-ok{padding:10px 14px;border-radius:8px;font-size:12px;line-height:1.6;background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2);color:var(--owned);}
+.upload-result-err{padding:10px 14px;border-radius:8px;font-size:12px;line-height:1.6;background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.2);color:var(--wanted);}
+</style>
+</head>
+<body>
+<div class="bg-glow bg-glow-1"></div>
+<div class="bg-glow bg-glow-2"></div>
+
+<header>
+  <div class="logo">
+    <div class="logo-mark">NF</div>
+    <div><div class="logo-text">NF_POCA</div><div class="logo-sub">N.Flying × N.Fia</div></div>
+  </div>
+  <div class="header-right">
+    <div class="sync-badge loading" id="syncBadge"><span class="s-dot"></span><span id="syncStatus">불러오는 중...</span></div>
+    <a class="btn btn-ghost" href="https://www.notion.so/a64054ebb9b2448ba53ac99355f11b6b" target="_blank" style="font-size:11px">📋</a>
+    <button class="btn btn-ghost" id="csvUploadBtn" style="font-size:11px">📤 CSV</button>
+    <button class="btn btn-ghost" id="refreshBtn" style="font-size:11px">🔄</button>
+  </div>
+</header>
+
+<div class="stats-bar" id="statsBar">
+  <div class="stat-chip active" data-sf="all">전체 <span class="stat-num" id="cnt-all">0</span></div>
+  <div class="stats-divider"></div>
+  <div class="stat-chip c-owned" data-sf="owned">✓ 소장 <span class="stat-num" id="cnt-owned">0</span></div>
+  <div class="stat-chip c-planned" data-sf="planned">📅 구입예정 <span class="stat-num" id="cnt-planned">0</span></div>
+  <div class="stat-chip c-wanted" data-sf="wanted">♥ 원해요 <span class="stat-num" id="cnt-wanted">0</span></div>
+  <div class="stat-chip" data-sf="none">미정 <span class="stat-num" id="cnt-none">0</span></div>
+  <div class="stat-chip c-ordered" data-sf="ordered">📦 미배송 <span class="stat-num" id="cnt-ordered">0</span></div>
+</div>
+
+<div class="filter-bar">
+  <div class="search-wrap">
+    <span class="search-ico">🔍</span>
+    <input class="search" id="searchQ" placeholder="포카명, 멤버, 앨범 검색...">
+  </div>
+  <select class="sel" id="filterMember">
+    <option value="">멤버 전체</option>
+    <option>승협</option><option>훈</option><option>재현</option>
+    <option>회승</option><option>동성</option><option>단체</option>
+  </select>
+  <select class="sel" id="filterCat1">
+    <option value="">매체 전체</option>
+    <option>앨범</option><option>미니앨범</option><option>싱글</option>
+    <option>포토북</option><option>잡지</option><option>화보</option>
+    <option>콘서트</option><option>팬미팅</option><option>팬콘</option>
+    <option>MD굿즈</option><option>콜라보</option><option>디지털싱글</option><option>기타</option>
+  </select>
+  <select class="sel" id="filterYear"><option value="">발매년 전체</option></select>
+  <select class="sel" id="filterAlbum"><option value="">출처 전체</option></select>
+  <select class="sel" id="sortSel">
+    <option value="date-asc" selected>오래된순</option>
+    <option value="date-desc">최신순</option>
+    <option value="name-asc">이름순</option>
+    <option value="member">멤버순</option>
+  </select>
+</div>
+
+<main>
+  <div class="setup-banner" id="setupBanner" style="display:none">
+    <h3>⚙️ Worker URL 설정 필요</h3>
+    <p>이 파일 상단의 <code>WORKER_URL</code> 값을 Cloudflare Worker 주소로 바꿔주세요.</p>
+  </div>
+  <div class="gallery" id="gallery"></div>
+  <div class="pagination" id="pagination"></div>
+</main>
+
+<div class="overlay" id="overlay">
+  <div class="detail-modal" id="detailModal">
+    <div class="detail-photo" id="detailPhoto">
+      <button class="detail-close" id="detailClose">✕</button>
+      <div class="detail-status-overlay" id="detailStatusOverlay"></div>
+    </div>
+    <div class="detail-body">
+      <div class="detail-name" id="detailName"></div>
+      <div class="detail-album" id="detailAlbum"></div>
+      <div class="detail-grid" id="detailGrid"></div>
+      <div class="detail-memo" id="detailMemo" style="display:none"></div>
+    </div>
+  </div>
+</div>
+
+<div class="csv-overlay" id="csvOverlay">
+  <div class="csv-modal">
+    <div class="csv-modal-hd">
+      <span class="csv-modal-title">📤 CSV 일괄 등록</span>
+      <button class="btn btn-ghost" id="csvModalClose" style="padding:4px 8px;font-size:12px">✕</button>
+    </div>
+    <div class="csv-modal-bd">
+      <div class="csv-note">
+        <strong>형식 안내</strong> — 헤더 포함, 쉼표(,) 구분<br>
+        상태: <code>owned</code>(소장) · <code>planned</code>(구입예정) · <code>wanted</code>(원해요) · <code>none</code>(미정) · <code>ordered</code>(포카마켓_미배송)
+      </div>
+      <div class="csv-format-box">
+        <span>포카명,멤버,매체,종류,앨범_출처,발매,상태,가격,구입처,메모</span><br>
+        이승협 포카,승협,미니앨범,앨범포카,Man on the Moon,2021-06,owned,15000,YES24,<br>
+        단체 포카,단체,콘서트,오프라인특전,&amp;CON3,2023-04,wanted,,,
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <label class="btn btn-ghost" style="cursor:pointer;font-size:12px">
+          📁 파일 선택<input type="file" id="csvFileInput" accept=".csv,.txt" style="display:none">
+        </label>
+        <button class="btn btn-ghost" id="csvParseBtn" style="font-size:12px">📋 직접 입력 파싱</button>
+        <button class="btn btn-ghost" id="csvTemplateBtn" style="font-size:12px">⬇️ 템플릿 다운로드</button>
+      </div>
+      <textarea class="csv-ta" id="csvTextarea" placeholder="또는 CSV 내용을 여기에 붙여넣으세요..."></textarea>
+      <div class="csv-preview-wrap" id="csvPreviewWrap">
+        <div class="csv-preview-title">파싱 결과 미리보기<span class="csv-preview-count" id="csvPreviewCount">0개</span></div>
+        <div style="overflow-x:auto">
+          <table class="csv-preview-table">
+            <thead><tr><th>#</th><th>포카명</th><th>멤버</th><th>매체</th><th>앨범</th><th>발매</th><th>상태</th></tr></thead>
+            <tbody id="csvPreviewBody"></tbody>
+          </table>
+        </div>
+        <div class="csv-actions">
+          <button class="btn btn-primary" id="csvSubmitBtn">✅ Notion에 저장</button>
+          <span class="upload-progress" id="uploadProgress"></span>
+        </div>
+        <div id="uploadResult" style="margin-top:8px"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const WORKER_URL = "https://black-flower-2f5a.youngshin02160.workers.dev";
+const PAGE_SIZE = 27; // 페이지당 표시 개수
+
+const STATUS_KO  = { owned:'소장', planned:'구입예정', wanted:'원해요', none:'미정', ordered:'포카마켓_미배송' };
+const ALL_MEMBERS = ['승협','훈','재현','회승','동성'];
+window.ALL_MEMBERS = ALL_MEMBERS;
+const MEMBER_INI  = { '승협':'SH','훈':'HN','재현':'JH','회승':'HS','동성':'DS','단체':'ALL' };
+const CAT1_ICON   = { '앨범':'💿','미니앨범':'💿','싱글':'🎵','포토북':'📓','잡지':'📰','화보':'📷','콘서트':'🎸','팬미팅':'🎤','팬콘':'🎤','MD굿즈':'🎁','콜라보':'✨','디지털싱글':'🎵','기타':'✦' };
+
+let allPocas=[], curFilter='all', searchQ='', filterMember='', filterAlbum='', sortKey='date-asc', filterYear='', filterCat1='';
+let currentPage = 1;
+var csvParsed=[];
+
+// ── 데이터 로드 ──
+async function loadPocas() {
+  if (WORKER_URL === '여기에_Worker_URL_입력') {
+    document.getElementById('setupBanner').style.display = 'block';
+    setBadge('err','Worker URL 미설정');
+    renderSkeletons(); return;
+  }
+  setBadge('loading','불러오는 중...');
+  renderSkeletons();
+  try {
+    const res = await fetch(`${WORKER_URL}/pocas`);
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error);
+    allPocas = data.pocas;
+    window.allPocas = allPocas;
+    setBadge('ok',`${allPocas.length}장`);
+    updateFilters();
+    render();
+  } catch(e) {
+    setBadge('err','로드 실패');
+    document.getElementById('gallery').innerHTML =
+      `<div class="empty" style="grid-column:1/-1"><div class="ico">⚠️</div><p>데이터를 불러올 수 없어요.<br>${e.message}</p></div>`;
+  }
+}
+
+function setBadge(state,text) {
+  document.getElementById('syncBadge').className='sync-badge '+state;
+  document.getElementById('syncStatus').textContent=text;
+}
+
+// ── 필터 옵션 자동 생성 ──
+function updateFilters() {
+  const albumsRaw=[...new Set(allPocas.map(p=>p.origin).filter(Boolean))];
+  const albumsBottom=['N.Fia','기타'];
+  const albumsMain=albumsRaw
+    .filter(a=>!albumsBottom.includes(a))
+    .sort((a,b)=>{
+      const ya=a.match(/^(\d{4})/); const yb=b.match(/^(\d{4})/);
+      if(ya&&yb) return parseInt(ya[1])-parseInt(yb[1]);
+      if(ya) return -1;
+      if(yb) return 1;
+      return a.localeCompare(b,'ko');
+    });
+  const albumsTail=albumsBottom.filter(a=>albumsRaw.includes(a));
+  const albums=[...albumsMain,...albumsTail];
+  document.getElementById('filterAlbum').innerHTML='<option value="">출처 전체</option>'+
+    albums.map(a=>`<option value="${esc(a)}">${esc(a)}</option>`).join('');
+  const years=[...new Set(allPocas.map(p=>(p.date||'').slice(0,4)).filter(y=>y.length===4))].sort();
+  document.getElementById('filterYear').innerHTML='<option value="">발매년 전체</option>'+
+    years.map(y=>`<option value="${y}">${y}년</option>`).join('');
+}
+
+// ── 필터/정렬 ──
+function getFiltered() {
+  let list=[...allPocas];
+  if (curFilter!=='all') list=list.filter(p=>p.status===curFilter);
+  if (filterMember) list=list.filter(p=>Array.isArray(p.member)?p.member.includes(filterMember):p.member===filterMember);
+  if (filterAlbum)  list=list.filter(p=>p.origin===filterAlbum);
+  if (filterYear)   list=list.filter(p=>(p.date||'').startsWith(filterYear));
+  if (filterCat1)   list=list.filter(p=>p.cat1===filterCat1);
+  if (searchQ) {
+    const q=searchQ.toLowerCase();
+    list=list.filter(p=>(p.name||'').toLowerCase().includes(q)||(Array.isArray(p.member)?p.member.join(' '):p.member||'').toLowerCase().includes(q)||(p.album||'').toLowerCase().includes(q));
+  }
+  function getMemberOrder(p){
+    var ms=Array.isArray(p.member)?p.member:(p.member?[p.member]:[]);
+    var best=99;
+    for(var i=0;i<ms.length;i++){var idx=ALL_MEMBERS.indexOf(ms[i]);if(idx!==-1&&idx<best)best=idx;}
+    return best;
+  }
+  function getSortKey(p){
+    var mo = String(getMemberOrder(p)).padStart(2,'0');
+    var name = p.name||'';
+    var date = p.date||'';
+    if(sortKey==='date-asc')  return date+'__'+name+'__'+mo;
+    if(sortKey==='date-desc') return (9999-parseInt(date||0,10)).toString().padStart(4,'0')+'__'+name+'__'+mo;
+    if(sortKey==='name-asc')  return name+'__'+mo;
+    if(sortKey==='member')    return mo+'__'+date+'__'+name;
+    return date+'__'+name+'__'+mo;
+  }
+  list.sort(function(a,b){
+    var ka=getSortKey(a), kb=getSortKey(b);
+    if(ka<kb) return -1;
+    if(ka>kb) return 1;
+    return 0;
+  });
+  return list;
+}
+
+// ── 통계 ──
+function updateStats() {
+  document.getElementById('cnt-all').textContent    =allPocas.length;
+  document.getElementById('cnt-owned').textContent  =allPocas.filter(p=>p.status==='owned').length;
+  document.getElementById('cnt-planned').textContent=allPocas.filter(p=>p.status==='planned').length;
+  document.getElementById('cnt-wanted').textContent =allPocas.filter(p=>p.status==='wanted').length;
+  document.getElementById('cnt-none').textContent   =allPocas.filter(p=>p.status==='none').length;
+  document.getElementById('cnt-ordered').textContent=allPocas.filter(p=>p.status==='ordered').length;
+}
+
+// ── 페이지네이션 렌더 ──
+function renderPagination(total) {
+  const totalPages = Math.ceil(total / PAGE_SIZE);
+  const pagination = document.getElementById('pagination');
+  if (totalPages <= 1) { pagination.innerHTML = ''; return; }
+
+  if (currentPage > totalPages) currentPage = totalPages;
+
+  let html = '';
+  html += `<button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>‹</button>`;
+
+  const range = getPageRange(currentPage, totalPages);
+  for (const p of range) {
+    if (p === '...') {
+      html += `<span class="page-info">…</span>`;
+    } else {
+      html += `<button class="page-btn${p===currentPage?' active':''}" onclick="goPage(${p})">${p}</button>`;
+    }
+  }
+
+  html += `<button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage===totalPages?'disabled':''}>›</button>`;
+
+  const start = (currentPage-1)*PAGE_SIZE+1;
+  const end = Math.min(currentPage*PAGE_SIZE, total);
+  html += `<span class="page-info">${start}–${end} / ${total}</span>`;
+
+  pagination.innerHTML = html;
+}
+
+function getPageRange(cur, total) {
+  if (total <= 7) return Array.from({length:total},(_,i)=>i+1);
+  const pages = [];
+  if (cur <= 4) {
+    pages.push(1,2,3,4,5,'...',total);
+  } else if (cur >= total-3) {
+    pages.push(1,'...',total-4,total-3,total-2,total-1,total);
+  } else {
+    pages.push(1,'...',cur-1,cur,cur+1,'...',total);
+  }
+  return pages;
+}
+
+function goPage(p) {
+  const list = getFiltered();
+  const totalPages = Math.ceil(list.length / PAGE_SIZE);
+  if (p < 1 || p > totalPages) return;
+  currentPage = p;
+  renderGallery(list);
+  document.getElementById('gallery').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+// ── 갤러리 렌더 ──
+function render() {
+  const list = getFiltered();
+  currentPage = 1;
+  updateStats();
+  renderGallery(list);
+}
+
+function renderGallery(list) {
+  const gallery = document.getElementById('gallery');
+  if (!list.length) {
+    gallery.innerHTML = `<div class="empty"><div class="ico">🎴</div><p>해당하는 포카가 없어요</p></div>`;
+    document.getElementById('pagination').innerHTML = '';
+    return;
+  }
+
+  const start = (currentPage-1) * PAGE_SIZE;
+  const pageItems = list.slice(start, start + PAGE_SIZE);
+
+  gallery.innerHTML = pageItems.map(p=>{
+    const members=Array.isArray(p.member)?p.member:(p.member?[p.member]:[]);
+    const ini=MEMBER_INI[members[0]]||'';
+    const photoHtml=p.photos?.length
+      ?`<img src="${esc(p.photos[0])}" alt="${esc(p.name)}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=\\'card-photo-placeholder\\'><div class=\\'emoji\\'>${CAT1_ICON[p.cat1]||'✦'}</div><div class=\\'initial\\'>${ini}</div></div>'">`
+      :`<div class="card-photo-placeholder"><div class="emoji">${CAT1_ICON[p.cat1]||'✦'}</div><div class="initial">${ini}</div></div>`;
+    return `
+      <div class="poca-card" onclick="openDetail('${p.id}')">
+        <div class="card-photo">
+          ${photoHtml}
+          <span class="card-status ${p.status||'none'}">${STATUS_KO[p.status||'none']}</span>
+        </div>
+        <div class="card-info">
+          <div class="card-name">${esc(p.name)}</div>
+          <div class="card-album">${esc(p.album||'—')}</div>
+          <div class="card-tags">
+            ${members.map(m=>`<span class="tag t-member">${esc(m)}</span>`).join('')}
+            ${p.cat2?`<span class="tag t-cat">${esc(p.cat2)}</span>`:''}
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+
+  renderPagination(list.length);
+  requestAnimationFrame(fixPhotoSizes);
+}
+
+function fixPhotoSizes() {
+  const vw = window.innerWidth;
+  const cols = vw >= 1200 ? 6 : vw >= 1024 ? 5 : vw >= 641 ? 4 : 3;
+  const gap = vw >= 641 ? 10 : 8;
+  const pad = vw >= 1200 ? 40 : 28;
+  const colW = (Math.min(vw, vw >= 1200 ? 1300 : vw) - pad - (cols - 1) * gap) / cols;
+  const h = Math.round(colW * 4 / 3);
+  document.querySelectorAll('.card-photo').forEach(el => {
+    el.style.height = h + 'px';
+  });
+}
+
+function renderSkeletons() {
+  document.getElementById('gallery').innerHTML=Array(12).fill(0).map(()=>`
+    <div class="skel-card skeleton"><div class="skel-img skeleton"></div>
+    <div class="skel-body"><div class="skel-line skeleton"></div><div class="skel-line short skeleton"></div></div></div>`).join('');
+  document.getElementById('pagination').innerHTML = '';
+}
+
+// ── 상세 모달 ──
+function openDetail(id) {
+  const p=allPocas.find(x=>x.id===id); if(!p) return;
+  const photoEl=document.getElementById('detailPhoto');
+  const old=photoEl.querySelector('img,.detail-photo-placeholder');
+  if(old) old.remove();
+  if(p.photos?.length){
+    const img=document.createElement('img');
+    img.src=p.photos[0]; img.alt=p.name;
+    img.onerror=()=>img.replaceWith(makePlaceholder(p));
+    photoEl.insertBefore(img,photoEl.firstChild);
+  } else {
+    photoEl.insertBefore(makePlaceholder(p),photoEl.firstChild);
+  }
+  const members=Array.isArray(p.member)?p.member:(p.member?[p.member]:[]);
+  document.getElementById('detailStatusOverlay').innerHTML=`<span class="pill ${p.status||'none'}">${STATUS_KO[p.status||'none']}</span>`;
+  document.getElementById('detailName').textContent=p.name||'—';
+  document.getElementById('detailAlbum').textContent=p.album||'—';
+  const fields=[
+    {label:'멤버',  value:members.join(', ')||'—'},
+    {label:'매체',  value:p.cat1||'—'},
+    {label:'종류',  value:p.cat2||'—'},
+    {label:'발매',  value:p.date||'—'},
+    {label:'구입처',value:p.source||'—'},
+    {label:'출처',  value:p.origin||'—'},
+  ];
+  document.getElementById('detailGrid').innerHTML=fields.map((f,i)=>{
+    const isLast = i===fields.length-1;
+    const isOdd  = fields.length%2===1;
+    const fullWidth = isLast&&isOdd ? 'grid-column:1/-1;' : '';
+    return `<div class="detail-field" style="${fullWidth}"><div class="detail-field-label">${f.label}</div><div class="detail-field-value">${esc(String(f.value))}</div></div>`;
+  }).join('');
+  const memoEl=document.getElementById('detailMemo');
+  if(p.memo){memoEl.textContent=p.memo;memoEl.style.display='';}else{memoEl.style.display='none';}
+  document.getElementById('overlay').classList.add('open');
+}
+function makePlaceholder(p){const d=document.createElement('div');d.className='detail-photo-placeholder';d.textContent=CAT1_ICON[p.cat1]||'✦';return d;}
+function closeDetail(){document.getElementById('overlay').classList.remove('open');}
+
+// ── CSV ──
+function parseCSV(text) {
+  var lines=text.trim().split('\n').filter(function(l){return l.trim();});
+  if(!lines.length) return [];
+  var start=(lines[0].toLowerCase().includes('포카명')||lines[0].toLowerCase().includes('name'))?1:0;
+  return lines.slice(start).map(function(line){
+    var cols=line.split(',').map(function(c){return c.trim().replace(/^"|"$/g,'');});
+    return {name:cols[0]||'',member:cols[1]||'',cat1:cols[2]||'',cat2:cols[3]||'',album:cols[4]||'',
+      date:cols[5]||'',status:['owned','planned','wanted','none','ordered'].includes(cols[6])?cols[6]:'none',
+      price:cols[7]||'',source:cols[8]||'',memo:cols[9]||''};
+  }).filter(function(p){return p.name;});
+}
+
+function showCSVPreview(list) {
+  var STATUS_KO2={owned:'소장',planned:'구입예정',wanted:'원해요',none:'미정',ordered:'미배송'};
+  document.getElementById('csvPreviewCount').textContent=list.length+'개';
+  document.getElementById('csvPreviewBody').innerHTML=list.map(function(p,i){
+    return '<tr><td style="color:var(--text-dim)">'+(i+1)+'</td>'+
+      '<td style="font-weight:600">'+esc(p.name)+'</td><td>'+esc(p.member||'—')+'</td>'+
+      '<td>'+esc(p.cat1||'—')+'</td><td>'+esc(p.album||'—')+'</td>'+
+      '<td style="font-family:monospace">'+esc(p.date||'—')+'</td>'+
+      '<td><span class="pill '+p.status+'">'+(STATUS_KO2[p.status]||p.status)+'</span></td></tr>';
+  }).join('');
+  document.getElementById('csvPreviewWrap').className='csv-preview-wrap show';
+  document.getElementById('uploadResult').innerHTML='';
+}
+
+function openCSVModal(){document.getElementById('csvOverlay').classList.add('open');}
+function closeCSVModal(){
+  document.getElementById('csvOverlay').classList.remove('open');
+  document.getElementById('csvTextarea').value='';
+  document.getElementById('csvPreviewWrap').className='csv-preview-wrap';
+  document.getElementById('uploadResult').innerHTML='';
+  document.getElementById('uploadProgress').textContent='';
+  csvParsed=[];
+}
+
+// ── 이벤트 ──
+document.getElementById('refreshBtn').addEventListener('click',hardRefresh);
+
+async function hardRefresh() {
+  setBadge('loading','Notion에서 불러오는 중...');
+  renderSkeletons();
+  try {
+    const res = await fetch(`${WORKER_URL}/refresh`, { method: 'POST' });
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error);
+    allPocas = data.pocas;
+    window.allPocas = allPocas;
+    setBadge('ok',`${allPocas.length}장`);
+    updateFilters();
+    render();
+  } catch(e) {
+    setBadge('err','갱신 실패');
+  }
+}
+
+document.getElementById('detailClose').addEventListener('click',closeDetail);
+document.getElementById('overlay').addEventListener('click',e=>{if(e.target===e.currentTarget)closeDetail();});
+document.getElementById('searchQ').addEventListener('input',e=>{searchQ=e.target.value;render();});
+document.getElementById('filterMember').addEventListener('change',e=>{filterMember=e.target.value;render();});
+document.getElementById('filterAlbum').addEventListener('change',e=>{filterAlbum=e.target.value;render();});
+document.getElementById('filterYear').addEventListener('change',e=>{filterYear=e.target.value;render();});
+document.getElementById('filterCat1').addEventListener('change',e=>{filterCat1=e.target.value;render();});
+document.getElementById('sortSel').addEventListener('change',e=>{sortKey=e.target.value;render();});
+document.querySelectorAll('.stat-chip').forEach(chip=>{
+  chip.addEventListener('click',()=>{
+    curFilter=chip.dataset.sf;
+    document.querySelectorAll('.stat-chip').forEach(c=>c.classList.remove('active'));
+    chip.classList.add('active');
+    render();
+  });
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDetail();});
+document.getElementById('csvUploadBtn').addEventListener('click',openCSVModal);
+document.getElementById('csvModalClose').addEventListener('click',closeCSVModal);
+document.getElementById('csvOverlay').addEventListener('click',function(e){if(e.target===e.currentTarget)closeCSVModal();});
+document.getElementById('csvTemplateBtn').addEventListener('click',function(){
+  var header='포카명,멤버,매체,종류,앨범_출처,발매,상태,가격,구입처,메모';
+  var rows=[
+    '이승협 포카,승협,미니앨범,앨범포카,Man on the Moon,2021-06,owned,15000,YES24,',
+    '차훈 포카,훈,미니앨범,앨범포카,Man on the Moon,2021-06,wanted,,,',
+    '단체 포카,단체,콘서트,오프라인특전,&CON3,2023-04,none,,,',
+    ','
+  ];
+  var csv='﻿'+header+'\n'+rows.join('\n');
+  var blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='NFlying_포카리스트_템플릿.csv';
+  a.click();
+  URL.revokeObjectURL(a.href);
+});
+document.getElementById('csvParseBtn').addEventListener('click',function(){
+  var text=document.getElementById('csvTextarea').value;
+  if(!text.trim()){alert('CSV 내용을 입력하세요');return;}
+  csvParsed=parseCSV(text);
+  if(!csvParsed.length){alert('파싱된 항목이 없습니다. 형식을 확인해주세요.');return;}
+  showCSVPreview(csvParsed);
+});
+document.getElementById('csvFileInput').addEventListener('change',function(e){
+  var file=e.target.files[0]; if(!file) return;
+  var reader=new FileReader();
+  reader.onload=function(ev){
+    document.getElementById('csvTextarea').value=ev.target.result;
+    csvParsed=parseCSV(ev.target.result);
+    if(csvParsed.length) showCSVPreview(csvParsed);
+    else alert('파싱된 항목이 없습니다.');
+  };
+  reader.readAsText(file); e.target.value='';
+});
+document.getElementById('csvSubmitBtn').addEventListener('click',async function(){
+  if(!csvParsed.length) return;
+  var btn=document.getElementById('csvSubmitBtn');
+  var prog=document.getElementById('uploadProgress');
+  var result=document.getElementById('uploadResult');
+  btn.disabled=true; btn.textContent='저장 중...';
+  prog.textContent='0/'+csvParsed.length; result.innerHTML='';
+  try {
+    var res=await fetch(WORKER_URL+'/upload',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pocas:csvParsed})});
+    var data=await res.json();
+    if(data.ok){
+      prog.textContent='';
+      var errHtml=data.errors&&data.errors.length?'<br>실패 '+data.errors.length+'건: '+data.errors.slice(0,3).join(', '):'';
+      result.innerHTML='<div class="upload-result-ok">✅ '+data.created+'개 Notion에 저장됐어요!'+errHtml+'</div>';
+      setTimeout(function(){loadPocas();closeCSVModal();},1500);
+    } else {
+      result.innerHTML='<div class="upload-result-err">❌ '+esc(data.error)+'</div>';
+    }
+  } catch(e){
+    result.innerHTML='<div class="upload-result-err">❌ '+esc(e.message)+'</div>';
+  } finally {
+    btn.disabled=false; btn.textContent='✅ Notion에 저장';
+  }
+});
+
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+loadPocas();
+window.addEventListener('resize', () => requestAnimationFrame(fixPhotoSizes));
+</script>
+</body>
+</html>
