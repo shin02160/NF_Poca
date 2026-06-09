@@ -18,11 +18,12 @@ export default function GridItem({ card, inPhotobook, onAdd, onRemove, onDetail 
 
   return (
     <div onClick={onDetail} style={{ cursor: 'pointer', width: '100%' }}>
-      {/* 이미지 래퍼: 컨테이너에서 3:4 비율 고정 */}
+      {/* 외부: height:0 + padding-bottom으로 3:4 비율 확보 (크로스브라우저 완벽 지원) */}
       <div style={{
         position: 'relative',
         width: '100%',
-        aspectRatio: '3 / 4',
+        height: 0,
+        paddingBottom: '133.33%',
         borderRadius: 9,
         overflow: 'hidden',
         outline: inPhotobook ? '2.5px solid var(--accent)' : 'none',
@@ -31,6 +32,8 @@ export default function GridItem({ card, inPhotobook, onAdd, onRemove, onDetail 
       }}>
         {showFallback ? (
           <div style={{
+            position: 'absolute',
+            top: 0, left: 0,
             width: '100%',
             height: '100%',
             display: 'flex',
@@ -51,7 +54,7 @@ export default function GridItem({ card, inPhotobook, onAdd, onRemove, onDetail 
             onError={() => setImgError(true)}
             style={{
               position: 'absolute',
-              inset: 0,
+              top: 0, left: 0,
               width: '100%',
               height: '100%',
               objectFit: 'cover',

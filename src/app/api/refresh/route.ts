@@ -143,9 +143,8 @@ export async function POST() {
       }
 
       const status = rest.status ?? existing?.status ?? null;
+      // 모든 행이 동일한 키를 가져야 PostgREST batch upsert 가능 (null 제거 금지)
       const row: any = { ...rest, image_url, status };
-      // null 값은 upsert 페이로드에서 제외 (기존 DB 값 보존)
-      Object.keys(row).forEach((k) => { if (row[k] === null) delete row[k]; });
       row.id = card.id; // id는 항상 포함
       batch.push(row);
 

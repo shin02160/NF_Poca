@@ -241,14 +241,15 @@ export default function MainView() {
                   }}
                 >
                   {row.map((card) => (
+                    <div key={card.id} style={{ minWidth: 0 }}>
                     <GridItem
-                      key={card.id}
                       card={card}
                       inPhotobook={isInPhotobook(card.id)}
                       onAdd={() => addToPhotobook(card)}
                       onRemove={() => removeFromPhotobook(card.id)}
                       onDetail={() => useAppStore.setState({ detailCard: card })}
                     />
+                    </div>
                   ))}
                 </div>
               ))}
