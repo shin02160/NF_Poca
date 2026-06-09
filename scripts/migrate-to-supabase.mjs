@@ -3,10 +3,11 @@
  * 실행: node scripts/migrate-to-supabase.mjs
  */
 
-const NOTION_TOKEN = 'NOTION_TOKEN_REMOVED';
-const NOTION_DB_ID = '3756d8c5-8de1-81f7-a7ec-cc05f6288a64';
-const SUPABASE_URL = 'https://cuarcwzthhdzmarjgyax.supabase.co';
-const SUPABASE_SERVICE_KEY = 'SUPABASE_SERVICE_KEY_REMOVED';
+// 환경변수 또는 직접 입력 (실행 시: NOTION_TOKEN=xxx node scripts/migrate-to-supabase.mjs)
+const NOTION_TOKEN = process.env.NOTION_TOKEN || '';
+const NOTION_DB_ID = process.env.NOTION_DB_ID || '';
+const SUPABASE_URL = process.env.SUPABASE_URL || '';
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY || '';
 const BUCKET = 'poca-images';
 
 const sbHeaders = {
